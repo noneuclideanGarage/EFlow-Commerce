@@ -11,9 +11,9 @@ public class Order
     public Order(Guid customerId, IEnumerable<OrderItem> items)
     {
         if (customerId == Guid.Empty)
-            throw new InvalidDataException("CustomerId of Order must exist");
+            throw new ArgumentException("CustomerId of Order must exist");
         if (items is null || items.Count() == 0)
-            throw new InvalidDataException("Items of Order must exist");
+            throw new ArgumentException("Items of Order must exist");
 
         CustomerId = customerId;
         Items = [.. items];

@@ -9,11 +9,11 @@ public class OrderItem
     public OrderItem(Guid productId, uint quantity, uint unitPrice)
     {
         if (quantity == 0)
-            throw new InvalidDataException("Quantity of OrderItem should be greater then 0");
+            throw new ArgumentException("Quantity of OrderItem should be greater then 0");
         if (unitPrice == 0)
-            throw new InvalidDataException("UnitPrice of OrderItem should be greater then 0");
+            throw new ArgumentException("UnitPrice of OrderItem should be greater then 0");
         if (ProductId == Guid.Empty)
-            throw new InvalidDataException("ProductId of OrderItem must have an Id");
+            throw new ArgumentException("ProductId of OrderItem must have an Id");
 
         ProductId = productId;
         Quantity = quantity;
