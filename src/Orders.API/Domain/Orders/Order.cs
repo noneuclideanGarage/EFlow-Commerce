@@ -1,3 +1,4 @@
+namespace Orders.API.Domain.Orders;
 
 public class Order
 {

@@ -1,3 +1,5 @@
+namespace Orders.API.Domain.Orders;
+
 public enum OrderStatus
 {
     Pending = 1,

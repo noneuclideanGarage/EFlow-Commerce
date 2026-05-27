@@ -1,8 +1,24 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using Orders.API.Infrastructure.Persistence;
 
-builder.Services.AddOpenApi();
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+    var connectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrWhiteSpace(connectionStr))
+        throw new InvalidOperationException("Cannot get DB-connection string from configuration");
 
-app.Run();
+    builder.Services.AddDbContext<OrderDbContext>(opts => 
+            {
+            opts.UseNpgsql(connectionStr);
+            });
 
+    var app = builder.Build();
+
+    app.Run();
+}
+catch (Exception e)
+{
+    Console.WriteLine("Fatal: {e}", e.Message);
+}
