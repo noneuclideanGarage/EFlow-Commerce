@@ -5,21 +5,32 @@ public class Result
     protected Result(bool isSuccess, Error? error = default)
     {
         IsSuccess = isSuccess;
-        Error = error;
+        Error = error is null ? null : [error];
+    }
+
+    protected Result(bool isSuccess, List<Error> errors)
+    {
+        IsSuccess = isSuccess;
+        Error = errors.Count == 0 || errors is null ? null : [..errors];
     }
 
     public bool IsSuccess { get; init; }
     public bool IsFailure => !IsSuccess;
-    public Error? Error { get; init; }
+    public IReadOnlyCollection<Error>? Error { get; init; }
 
-    public static Result Success() => new(isSuccess: true, null);
+    public static Result Success() => new(isSuccess: true, error: null);
     public static Result Failure(Error error) => new(isSuccess: false, error);
+    public static Result Failure(List<Error> errors) => new(isSuccess: false, errors);
 }
 
 public class Result<T> : Result
 {
     protected Result(bool isSuccess, Error? error) 
         : base(isSuccess, error) {}
+    
+    protected Result(bool isSuccess, List<Error> errors) 
+        : base(isSuccess, errors) {}
+
 
     public T? Value
     {
