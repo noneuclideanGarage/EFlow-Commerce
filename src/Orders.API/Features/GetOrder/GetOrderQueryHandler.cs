@@ -17,7 +17,7 @@ public class GetOrderQueryHandler(OrderDbContext context) : IRequestHandler<GetO
         var responseDto = new GetOrderResponse(
                 orderById.Id, 
                 orderById.CustomerId, 
-                orderById.Status, 
+                orderById.Status.ToString(), 
                 orderById.CreatedAtUtc, 
                 orderById.Items, 
                 orderById.TotalPrice

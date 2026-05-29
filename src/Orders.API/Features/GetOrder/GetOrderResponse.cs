@@ -5,7 +5,7 @@ namespace Orders.API.Features.GetOrder;
 public record GetOrderResponse(
         Guid OrderId, 
         Guid CustomerId, 
-        OrderStatus Status, 
+        string Status, 
         DateTime CreatedAt, 
         IReadOnlyCollection<OrderItem> Items,
         decimal TotalPrice
