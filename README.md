@@ -4,17 +4,6 @@ EventFlow Commerce is a production-inspired, event-driven order processing platf
 
 The project demonstrates backend engineering practices such as distributed messaging, transactional outbox, optimistic concurrency, integration testing, observability, and containerized local development.
 
-## Architecture
-
-The system consists of several independently deployable services:
-
-- Catalog API
-- Orders API
-- Payments Worker
-- API Gateway
-
-Services communicate asynchronously through RabbitMQ using integration events.
-
 ## Current status
 
 Milestone 1 completed:
@@ -23,13 +12,25 @@ Milestone 1 completed:
 - Get order by id
 - PostgreSQL persistence
 - EF Core migrations
+- Vertical Slice structure
+- FluentValidation via decorator pipeline
 - Integration tests with Testcontainers
-- Database reset with Respawn
+- DB cleanup with Respawn
 
-## Planned milestones
+## Roadmap
 
+Milestone 2:
 - Catalog API
-- RabbitMQ messaging
-- Transactional outbox
+- Product model
+- Product lookup
+- Validate products before order creation
+
+Milestone 3:
+- RabbitMQ
 - Payments Worker
+- Integration events
+
+Milestone 4:
+- Transactional Outbox
 - Observability
+- CI/CD
