@@ -8,7 +8,7 @@ using Testcontainers.PostgreSql;
 using Respawn;
 using Npgsql;
 
-namespace Orders.IntegrationTests;
+namespace Orders.IntegrationTests.Infrastructure;
 
 public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -62,6 +62,7 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.ConfigureServices(services => 
         {
             services.RemoveAll<OrderDbContext>();
+            services.RemoveAll<DbContextOptions<OrderDbContext>>();
             services.AddDbContext<OrderDbContext>(opts => 
             {
                 opts.UseNpgsql(_postgres.GetConnectionString());

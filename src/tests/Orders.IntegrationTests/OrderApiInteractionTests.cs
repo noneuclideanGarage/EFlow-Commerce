@@ -4,27 +4,27 @@ using Orders.API.Common;
 using Orders.API.Domain.Orders;
 using Orders.API.Features.CreateOrder;
 using Orders.API.Features.GetOrder;
+using Orders.IntegrationTests.Infrastructure;
 
 namespace Orders.IntegrationTests;
 
-public class OrderApiInteractionTests(OrderApiFactory factory) : IClassFixture<OrderApiFactory>
+public class OrderApiInteractionTests : IntegrationTestBase
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    public OrderApiInteractionTests(OrderApiFactory factory) : base(factory)
+    {}
 
     [Fact]
     public async Task CreateOrder_FailureResultWithInvalidRequest()
     {
         var invalidRequest = new { };
 
-        var response = await _client.PostAsJsonAsync("/orders", invalidRequest);
+        var response = await Client.PostAsJsonAsync("/orders", invalidRequest);
         var jsonResponse = await response.Content.ReadFromJsonAsync<IEnumerable<Error>>();
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.NotNull(jsonResponse);
         Assert.Equal(new Error("Validation.Failure", "Invalid format of CustomerId"), jsonResponse.First());
         // Debug(jsonResponse);
-
-        await factory.ResetDatabaseAsync();
     }
 
     [Fact]
@@ -44,15 +44,13 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IClassFixture<O
             },
         };
 
-        var response = await _client.PostAsJsonAsync("/orders", request);
+        var response = await Client.PostAsJsonAsync("/orders", request);
         var jsonResponse = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(jsonResponse);
         Assert.Equal(OrderStatus.Pending.ToString(), jsonResponse.Status);
         // Debug(await response.Content.ReadAsStringAsync());
-
-        await factory.ResetDatabaseAsync();
     }
 
     [Fact]
@@ -74,11 +72,11 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IClassFixture<O
             },
         };
 
-        var createResponse = await _client.PostAsJsonAsync("/orders", request);
+        var createResponse = await Client.PostAsJsonAsync("/orders", request);
         var jsonCreateResponse = await createResponse.Content.ReadFromJsonAsync<CreateOrderResponse>();
         Assert.NotNull(jsonCreateResponse);
 
-        var newClient = factory.CreateClient();
+        var newClient = Factory.CreateClient();
         var getByIdResponse = await newClient.GetAsync($"/orders/{jsonCreateResponse.OrderId}");
         var getByIdJsonResponse = await getByIdResponse.Content.ReadFromJsonAsync<GetOrderResponse>();
 
@@ -90,8 +88,6 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IClassFixture<O
         Assert.NotEmpty(getByIdJsonResponse.Items);
         Assert.Equal(expectedProductId, getByIdJsonResponse.Items.First().ProductId);
         Assert.Equal(2*420.69m, getByIdJsonResponse.TotalPrice);
-
-        await factory.ResetDatabaseAsync();
     }
 
     [Fact]
@@ -99,7 +95,7 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IClassFixture<O
     {
         var expectedError = new Error("GetOrder.Failure", "Order with given ID was not found.");
 
-        var getByIdResponse = await _client.GetAsync($"/orders/{Guid.CreateVersion7()}");
+        var getByIdResponse = await Client.GetAsync($"/orders/{Guid.CreateVersion7()}");
         var getByIdJsonResponse = await getByIdResponse.Content.ReadFromJsonAsync<IEnumerable<Error>>();
 
         Assert.Equal(HttpStatusCode.NotFound, getByIdResponse.StatusCode);
@@ -107,12 +103,5 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IClassFixture<O
         Assert.NotNull(getByIdJsonResponse);
         Assert.NotEmpty(getByIdJsonResponse);
         Assert.Equal(expectedError, getByIdJsonResponse.First());
-
-        await factory.ResetDatabaseAsync();
-    }
-
-    private void Debug<T>(T value)
-    {
-        Console.WriteLine($"[[DEBUG]] {value}");
     }
 }
