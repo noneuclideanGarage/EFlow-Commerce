@@ -3,5 +3,6 @@
     <Project Path="tests/Orders.IntegrationTests/Orders.IntegrationTests.csproj" />
     <Project Path="tests/Orders.UnitTests/Orders.UnitTests.csproj" />
   </Folder>
+  <Project Path="Catalog.API/Catalog.API.csproj" />
   <Project Path="Orders.API/Orders.API.csproj" />
 </Solution>
