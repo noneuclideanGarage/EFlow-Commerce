@@ -1,33 +1,15 @@
 namespace Catalog.API.Common;
 
-public class Result
+public interface IResult<TSelf> where TSelf : IResult<TSelf>
 {
-    public Result(bool isSuccess, Error? error = null)
-    {
-        IsSuccess = isSuccess;
-        Errors = error is null ? [] : [error];
-    }
-
-    public Result(bool isSuccess, IReadOnlyCollection<Error>? errors = null)
-    {
-       IsSuccess = isSuccess;
-       Errors = errors is null ? [] : [..errors];
-    }
-
-    public bool IsSuccess { get; set; }
-    public IReadOnlyCollection<Error>? Errors { get; init; }
-
-    public static Result Failure(IReadOnlyCollection<Error> errors) => new(isSuccess: false, errors);
-    public static Result Failure(Error error) => new(isSuccess: false, error);
-    public static Result Success() => new(isSuccess: true, error: null);
+    bool IsSuccess { get; }
+    IReadOnlyCollection<Error> Errors { get; }
+    static abstract TSelf Failure(IReadOnlyCollection<Error> errors);
+    static abstract TSelf Failure(Error error);
 }
 
-public class Result<T> : Result
+public class Result<T> : IResult<Result<T>>
 {
-    public Result(bool isSuccess, Error? error = null) : base(isSuccess, error) {}
-
-    public Result(bool isSuccess, IReadOnlyCollection<Error>? errors = null) : base(isSuccess, errors) {}
-
     public T? Value 
     { 
         get => IsSuccess 
@@ -35,12 +17,23 @@ public class Result<T> : Result
             : throw new InvalidOperationException("Cannot get Value property: Result is not failure"); 
         private set; 
     }
+    public bool IsSuccess { get; }
+    public IReadOnlyCollection<Error> Errors { get; }
 
-    public static Result<T> Success(T value) => new(true, error: null)
+    private Result(T value)
     {
-        Value = value
-    };
+        Value = value;
+        IsSuccess = true;
+        Errors = [];
+    }
 
-    public new static Result<T> Failure(IReadOnlyCollection<Error> errors) => new (false, errors: errors);
-    public new static Result<T> Failure(Error error) => new(false, error: error);
+    private Result(IReadOnlyCollection<Error> errors)
+    {
+        IsSuccess = false;
+        Errors = errors;
+    }
+
+    public static Result<T> Success(T value) => new(value);
+    public static Result<T> Failure(IReadOnlyCollection<Error> errors) => new(errors);
+    public static Result<T> Failure(Error error) => new([error]);
 }
